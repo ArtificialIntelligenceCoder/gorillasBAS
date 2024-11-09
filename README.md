@@ -5,7 +5,8 @@ Just a single html file that aims to be a better gaming experience than Call Of 
 above is the original qbasic game in a screenshot. 
 
 
-![Screenshot 2024-11-09 121453](https://github.com/user-attachments/assets/8fa94602-cbca-4fb1-baab-adf9ba0c7af2)
+![Screenshot 2024-11-09 125338](https://github.com/user-attachments/assets/092419e5-fd38-47f6-b89a-b2f891998e7c)
+
 
 
 
