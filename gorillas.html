@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -29,22 +28,32 @@
 </head>
 <body>
     <div id="turnIndicator">Player 1's Turn</div>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <canvas id="gameCanvas" width="1200" height="600"></canvas>
     <div id="controls">
-        <label for="angleInput" style="color: white;">Angle (0-90):</label>
-        <input type="number" id="angleInput" min="0" max="90">
+        <label for="angleInput" style="color: white;">Angle (1-86):</label>
+        <input type="number" id="angleInput" min="1" max="86">
         <label for="velocityInput" style="color: white;">Velocity (1-100):</label>
         <input type="number" id="velocityInput" min="1" max="100">
         <button onclick="handleFireButton()" style="color: white; background-color: #000080; border: 1px solid white;">Fire!</button>
+        <div id="score" style="color: white; margin-top: 10px;">Score: Player 1 - 0 | Player 2 - 0</div>
     </div>
     <script>
         const canvas = document.getElementById("gameCanvas");
+        window.addEventListener('resize', resizeCanvas);
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth * 0.9; // Set canvas width based on window size
+            canvas.height = window.innerHeight * 0.7; // Set canvas height based on window size
+            initBuildings(); // Reinitialize buildings to adjust their positions and dimensions
+        }
         const ctx = canvas.getContext("2d");
         const turnIndicator = document.getElementById("turnIndicator");
 
-        let gorilla1 = { x: 100, y: 400, width: 40, height: 40 }; // Make the gorilla larger to look more like original
+        let gorilla1 = { x: 100, y: 400, width: 40, height: 40 }; 
         let gorilla2 = { x: 650, y: 400, width: 40, height: 40 };
         let currentPlayer = 1;
+        let player1Score = 0;
+        let player2Score = 0;
         let banana = null;
         let angle = 0;
         let velocity = 0;
@@ -52,38 +61,40 @@
 
         // Initialize buildings with uniform pixel-style heights and windows
         function initBuildings() {
-            buildings = [];
-            const buildingColors = ["#C0C0C0", "#DC143C", "#FFD700", "#32CD32", "#4682B4", "#800080", "#FF69B4", "#8B0000"];
-            for (let i = 0; i < 8; i++) {
-                let width = 100;
-                let height = Math.floor(Math.random() * 150) + 150;
-                buildings.push({ 
-                    x: i * width, 
-                    y: canvas.height - height, 
-                    width: width, 
-                    height: height, 
-                    color: buildingColors[i % buildingColors.length],
-                    windows: []
+    buildings = [];
+    
+    const buildingColors = ["#808080", "#B22222", "#FFD700", "#32CD32", "#4682B4", "#800080", "#FFA500", "#A52A2A"];
+    const numBuildings = 12; // Increased number of buildings to fill wider canvas
+    const buildingWidth = canvas.width / numBuildings; // Calculate building width to fill entire canvas
+    for (let i = 0; i < numBuildings; i++) {
+        let height = Math.floor(Math.random() * 150) + 200; // Taller buildings to match original look
+        buildings.push({ 
+            x: i * buildingWidth, 
+            y: canvas.height - height, 
+            width: buildingWidth, 
+            height: height, 
+            color: buildingColors[i % buildingColors.length],
+            windows: []
+        });
+        // Add windows to the building
+        for (let w = 0; w < 5; w++) {
+            for (let h = 0; h < Math.floor(height / 30); h++) {
+                buildings[i].windows.push({
+                    x: buildings[i].x + 5 + w * (buildingWidth / 5.5),
+                    y: buildings[i].y + 5 + h * 30,
+                    width: Math.min(15, buildingWidth / 6.5),
+                    height: 15,
+                    color: "#FFFF00"
                 });
-                // Add windows to the building
-                for (let w = 0; w < 6; w++) {
-                    for (let h = 0; h < Math.floor(height / 25); h++) {
-                        buildings[i].windows.push({
-                            x: buildings[i].x + 15 + w * 15,
-                            y: buildings[i].y + 5 + h * 25,
-                            width: 10,
-                            height: 15,
-                            color: "#FFFF00"
-                        });
-                    }
-                }
             }
-            // Adjust gorilla positions to sit on top of the buildings
-            gorilla1.y = buildings[1].y - gorilla1.height;
-            gorilla1.x = buildings[1].x + (buildings[1].width / 2) - (gorilla1.width / 2);
-            gorilla2.y = buildings[6].y - gorilla2.height;
-            gorilla2.x = buildings[6].x + (buildings[6].width / 2) - (gorilla2.width / 2);
         }
+    }
+    // Adjust gorilla positions to sit on top of the buildings
+    gorilla1.y = buildings[1].y - gorilla1.height;
+    gorilla1.x = buildings[1].x + (buildings[1].width / 2) - (gorilla1.width / 2);
+    gorilla2.y = buildings[numBuildings - 2].y - gorilla2.height;
+    gorilla2.x = buildings[numBuildings - 2].x + (buildings[numBuildings - 2].width / 2) - (gorilla2.width / 2);
+}
 
         // Draw buildings with windows
         function drawBuildings() {
@@ -97,44 +108,38 @@
             });
         }
 
-        // Draw gorillas to look more like original
+        // Draw gorillas to look like the original game
         function drawGorillas() {
-            ctx.fillStyle = "#FFD700"; // Yellow gorillas like original
             // Draw gorilla 1
-            ctx.beginPath();
-            ctx.arc(gorilla1.x + 20, gorilla1.y + 20, 20, 0, Math.PI * 2); // Body
-            ctx.fill();
-            ctx.fillStyle = "#000000"; // Black for eyes
-            ctx.beginPath();
-            ctx.arc(gorilla1.x + 13, gorilla1.y + 13, 2, 0, Math.PI * 2); // Left eye
-            ctx.arc(gorilla1.x + 27, gorilla1.y + 13, 2, 0, Math.PI * 2); // Right eye
-            ctx.fill();
+            ctx.fillStyle = "#FFA500"; // Orange color to match original gorilla
+            ctx.fillRect(gorilla1.x, gorilla1.y, gorilla1.width, gorilla1.height); // Body
+            ctx.fillStyle = "#000000"; // Black for eyes and mouth
+            ctx.fillRect(gorilla1.x + 10, gorilla1.y + 10, 5, 5); // Left eye
+            ctx.fillRect(gorilla1.x + 25, gorilla1.y + 10, 5, 5); // Right eye
+            ctx.fillRect(gorilla1.x + 15, gorilla1.y + 25, 10, 5); // Mouth
 
             // Draw gorilla 2
-            ctx.fillStyle = "#FFD700"; // Yellow gorillas like original
-            ctx.beginPath();
-            ctx.arc(gorilla2.x + 20, gorilla2.y + 20, 20, 0, Math.PI * 2); // Body
-            ctx.fill();
-            ctx.fillStyle = "#000000"; // Black for eyes
-            ctx.beginPath();
-            ctx.arc(gorilla2.x + 13, gorilla2.y + 13, 2, 0, Math.PI * 2); // Left eye
-            ctx.arc(gorilla2.x + 27, gorilla2.y + 13, 2, 0, Math.PI * 2); // Right eye
-            ctx.fill();
+            ctx.fillStyle = "#FFA500"; // Orange color to match original gorilla
+            ctx.fillRect(gorilla2.x, gorilla2.y, gorilla2.width, gorilla2.height); // Body
+            ctx.fillStyle = "#000000"; // Black for eyes and mouth
+            ctx.fillRect(gorilla2.x + 10, gorilla2.y + 10, 5, 5); // Left eye
+            ctx.fillRect(gorilla2.x + 25, gorilla2.y + 10, 5, 5); // Right eye
+            ctx.fillRect(gorilla2.x + 15, gorilla2.y + 25, 10, 5); // Mouth
         }
 
         // Draw sun with smiley face in the middle
         function drawSun() {
             ctx.fillStyle = "#FFFF00"; // Yellow sun like original
             ctx.beginPath();
-            ctx.arc(canvas.width / 2, 50, 30, 0, Math.PI * 2);
+            ctx.arc(canvas.width / 2, 60, 40, 0, Math.PI * 2);
             ctx.fill();
             ctx.fillStyle = "#000000"; // Black for sun's face
             ctx.beginPath();
-            ctx.arc((canvas.width / 2) - 10, 40, 3, 0, Math.PI * 2); // Left eye
-            ctx.arc((canvas.width / 2) + 10, 40, 3, 0, Math.PI * 2); // Right eye
+            ctx.arc((canvas.width / 2) - 15, 50, 5, 0, Math.PI * 2); // Left eye
+            ctx.arc((canvas.width / 2) + 15, 50, 5, 0, Math.PI * 2); // Right eye
             ctx.fill();
             ctx.beginPath();
-            ctx.arc(canvas.width / 2, 55, 10, 0, Math.PI, false); // Smile
+            ctx.arc(canvas.width / 2, 75, 15, 0, Math.PI, false); // Smile
             ctx.stroke();
         }
 
@@ -172,9 +177,9 @@
         // Update banana position
         function updateBanana() {
             if (banana) {
-                banana.x += banana.vx * 0.1;
-                banana.y += banana.vy * 0.1;
-                banana.vy += 0.981; // gravity
+                banana.x += banana.vx * 0.2;
+                banana.y += banana.vy * 0.2;
+                banana.vy += 0.5; // gravity
                 
                 // Check collision with buildings, gorillas, or out of bounds
                 for (let building of buildings) {
@@ -183,7 +188,9 @@
                         drawExplosion(banana.x, banana.y);
                         banana = null;
                         currentPlayer = currentPlayer === 1 ? 2 : 1;
-                        turnIndicator.textContent = `Player ${currentPlayer}'s Turn`;
+                        document.getElementById('score').textContent = `Score: Player 1 - ${player1Score} | Player 2 - ${player2Score}`;
+            turnIndicator.textContent = `Player ${currentPlayer}'s Turn`;
+            document.getElementById('score').textContent = `Score: Player 1 - ${player1Score} | Player 2 - ${player2Score}`;
                         if (currentPlayer === 2) {
                             setTimeout(computerTurn, 1000);
                         }
@@ -205,14 +212,19 @@
                     banana.y >= gorilla1.y && banana.y <= gorilla1.y + gorilla1.height)
                 ) {
                     drawExplosion(banana.x, banana.y);
-                    alert(`Player ${currentPlayer} wins!`);
-                    resetGame();
+                    if (currentPlayer === 1) {
+                        player1Score++;
+                    } else {
+                        player2Score++;
+                    }
+                    setTimeout(() => { resetGame(); }, 1000);
                 }
             }
         }
 
         // Reset game
         function resetGame() {
+            turnIndicator.textContent = `Player ${currentPlayer}'s Turn | Score: Player 1 - ${player1Score} | Player 2 - ${player2Score}`;
             currentPlayer = 1;
             banana = null;
             initBuildings();
@@ -230,8 +242,8 @@
         }
 
         function gameLoop() {
-            updateBanana();
             drawGame();
+            updateBanana();
             requestAnimationFrame(gameLoop);
         }
 
@@ -239,7 +251,7 @@
         function handleFireButton() {
             angle = parseFloat(document.getElementById("angleInput").value);
             velocity = parseFloat(document.getElementById("velocityInput").value);
-            if (isNaN(angle) || isNaN(velocity) || angle < 0 || angle > 90 || velocity < 1 || velocity > 100) {
+            if (isNaN(angle) || isNaN(velocity) || angle < 1 || angle > 86 || velocity < 1 || velocity > 100) {
                 alert("Please enter valid angle (0-90) and velocity (1-100)");
                 return;
             }
@@ -255,8 +267,7 @@
 
         // Start game loop
         initBuildings();
-        drawGame();
-        requestAnimationFrame(gameLoop);
+        gameLoop();
     </script>
 </body>
 </html>
