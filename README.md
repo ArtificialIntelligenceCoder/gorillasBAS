@@ -5,8 +5,9 @@ Just a single html file that aims to be a better gaming experience than Call Of 
 above is the original qbasic game in a screenshot. 
 
 
+![Screenshot 2024-11-09 121453](https://github.com/user-attachments/assets/8fa94602-cbca-4fb1-baab-adf9ba0c7af2)
 
-![Screenshot 2024-11-09 121042](https://github.com/user-attachments/assets/6242cb49-844c-4a78-881c-dfe94195941b)
+
 
 progress so far.... as AI gets better i will be able to recreate the game entirely. 
 
